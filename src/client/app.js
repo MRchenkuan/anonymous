@@ -1,78 +1,50 @@
-import { P2PNetwork } from '../network/p2p.js'
-import { Identity } from '../core/crypto.js'
-import { Database } from '../storage/db.js'
-
 export class Client {
   constructor() {
-    this.identity = new Identity()
-    this.db = new Database()
-    this.p2p = new P2PNetwork(this.identity)
-    this.messageHandlers = new Map()
+    this.identity = null
   }
 
   async init() {
-    await this.p2p.init()
-    
-    this.p2p.onMessage('new_post', async (data) => {
-      await this.db.savePost(data)
-      this.emit('post_received', data)
-    })
-
-    this.p2p.onMessage('new_comment', async (data) => {
-      await this.db.saveComment(data.postId, data)
-      this.emit('comment_received', data)
-    })
-
-    this.p2p.node.connectionManager.addEventListener('peer:connect', () => {
-      const count = this.p2p.peers.size
-      this.emit('peer_connected', count)
-    })
+    this.identity = { address: await window.api.p2p.init() }
   }
 
   async createPost(content) {
-    const post = {
-      content,
-      author: this.identity.address,
-      signature: this.identity.sign(content),
-      publicKey: this.identity.getPublicKey(),
-      timestamp: Date.now()
-    }
-    
-    const id = await this.db.savePost(post)
-    await this.p2p.broadcast('new_post', { id, ...post })
-    return { id, ...post }
-  }
-
-  async createComment(postId, content) {
-    const comment = {
-      content,
-      author: this.identity.address,
-      signature: this.identity.sign(content),
-      publicKey: this.identity.getPublicKey(),
-      timestamp: Date.now()
-    }
-
-    const id = await this.db.saveComment(postId, comment)
-    await this.p2p.broadcast('new_comment', { id, postId, ...comment })
-    return { id, ...comment }
+    return await window.api.p2p.createPost(content)
   }
 
   async getPosts() {
-    return await this.db.getAllPosts()
+    return await window.api.p2p.getPosts()
+  }
+
+  async createComment(postId, content) {
+    return await window.api.p2p.createComment(postId, content)
   }
 
   async getComments(postId) {
-    return await this.db.getPostComments(postId)
+    return await window.api.p2p.getComments(postId)
   }
 
-  on(event, handler) {
-    this.messageHandlers.set(event, handler)
-  }
-
-  emit(event, data) {
-    const handler = this.messageHandlers.get(event)
-    if (handler) {
-      handler(data)
+  on(event, callback) {
+    switch(event) {
+      case 'peer_connected':
+        window.api.p2p.onPeerConnected(callback)
+        break
+      case 'post_received':
+        window.api.p2p.onPostReceived(callback)
+        break
+      case 'comment_received':
+        window.api.p2p.onCommentReceived(callback)
+        break
+      case 'nickname_updated':
+        window.api.p2p.onNicknameUpdated(callback)
+        break
     }
+  }
+
+  async setNickname(nickname) {
+    return await window.api.p2p.setNickname(nickname)
+  }
+
+  async getNickname(address) {
+    return await window.api.p2p.getNickname(address)
   }
 }

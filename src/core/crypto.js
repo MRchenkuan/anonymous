@@ -3,11 +3,23 @@ import pkg from 'tweetnacl-util'
 const { encodeBase64, decodeBase64, encodeUTF8, decodeUTF8 } = pkg
 
 export class Identity {
-  constructor() {
-    const keyPair = nacl.sign.keyPair()
-    this.publicKey = keyPair.publicKey
-    this.secretKey = keyPair.secretKey
+  constructor(savedKeys = null) {
+    if (savedKeys) {
+      this.publicKey = new Uint8Array(Object.values(savedKeys.publicKey))
+      this.secretKey = new Uint8Array(Object.values(savedKeys.secretKey))
+    } else {
+      const keyPair = nacl.sign.keyPair()
+      this.publicKey = keyPair.publicKey
+      this.secretKey = keyPair.secretKey
+    }
     this.address = this.generateAddress(this.publicKey)
+  }
+
+  toJSON() {
+    return {
+      publicKey: Array.from(this.publicKey),
+      secretKey: Array.from(this.secretKey)
+    }
   }
 
   generateAddress(publicKey) {

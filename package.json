@@ -1,20 +1,25 @@
 {
-  "name": "anonymous-forum",
+  "name": "now-u-c-me",
   "version": "1.0.0",
-  "description": "基于P2P的匿名论坛",
+  "description": "匿名社交应用",
+  "main": "src/main.js",
   "type": "module",
   "scripts": {
-    "dev": "node src/index.js",
-    "client": "node src/client.js",
-    "test": "node test/index.test.js"
+    "start": "electron .",
+    "build": "electron-builder"
   },
-  "keywords": [
-    "p2p",
-    "forum",
-    "anonymous"
-  ],
-  "author": "",
-  "license": "MIT",
+  "build": {
+    "appId": "com.anonymous.app",
+    "productName": "NOW U C ME",
+    "mac": {
+      "category": "public.app-category.social-networking",
+      "target": ["dmg", "zip"]
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ]
+  },
   "dependencies": {
     "@libp2p/bootstrap": "^9.0.8",
     "@libp2p/kad-dht": "^11.0.8",
@@ -23,14 +28,15 @@
     "@libp2p/pubsub-peer-discovery": "^11.0.1",
     "@libp2p/tcp": "^8.0.8",
     "dotenv": "^16.3.1",
+    "events": "^3.3.0",
     "express": "^4.18.2",
-    "level": "^8.0.0",
+    "level": "^8.0.1",
     "libp2p": "^0.46.21",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1"
   },
   "devDependencies": {
-    "electron": "^35.0.2",
-    "electron-builder": "^25.1.8"
+    "electron": "^35.0.0",
+    "electron-builder": "^24.9.1"
   }
 }

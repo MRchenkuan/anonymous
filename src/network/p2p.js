@@ -3,12 +3,14 @@ import { tcp } from '@libp2p/tcp'
 import { noise } from '@libp2p/noise'
 import { mplex } from '@libp2p/mplex'
 import { Identity } from '../core/crypto.js'
+import { EventEmitter } from 'events'
 
 export class P2PNetwork {
   constructor(identity) {
     this.peers = new Set()
     this.messageHandlers = new Map()
     this.identity = identity
+    this.emitter = new EventEmitter()
   }
 
   async init() {
@@ -79,4 +81,71 @@ export class P2PNetwork {
   onMessage(type, handler) {
     this.messageHandlers.set(type, handler)
   }
+
+  // 添加新的协议处理器
+async setupSyncHandler() {
+  await this.node.handle('/sync/request', async ({ stream }) => {
+    const { sink, source } = stream
+    const writer = sink.getWriter()
+    
+    try {
+      // 获取所有本地数据
+      const data = await this.getAllData()
+      await writer.write(encoder.encode(JSON.stringify(data)))
+    } finally {
+      await writer.close()
+    }
+  })
+
+  // 连接到新节点时请求数据同步
+  this.node.connectionManager.addEventListener('peer:connect', async (evt) => {
+    try {
+      const stream = await this.node.dialProtocol(evt.detail.remotePeer, '/sync/request')
+      const chunks = []
+      for await (const chunk of stream.source) {
+        chunks.push(chunk)
+      }
+      const data = JSON.parse(Buffer.concat(chunks).toString())
+      await this.syncData(data)
+    } catch (err) {
+      console.error('数据同步失败:', err)
+    }
+  })
+}
+
+async getAllData() {
+  return {
+    posts: await db.getAllPosts(),
+    nicknames: await db.getAllNicknames()
+  }
+}
+
+async syncData(data) {
+  // 同步帖子
+  for (const post of data.posts) {
+    if (await this.verifyData(post)) {
+      await db.savePost(post)
+    }
+  }
+  
+  // 同步昵称
+  for (const nickname of data.nicknames) {
+    if (await this.verifyData(nickname)) {
+      await db.saveNickname(nickname)
+    }
+  }
+}
+
+async verifyData(data) {
+  try {
+    return this.identity.verify(
+      data.content || data.nickname,
+      data.signature,
+      data.publicKey
+    )
+  } catch (err) {
+    console.error('数据验证失败:', err)
+    return false
+  }
+}
 }

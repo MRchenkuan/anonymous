@@ -2,111 +2,34 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>匿名论坛客户端</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
+    <title>NOW U C ME</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
     <div class="container mx-auto p-4">
         <header class="mb-6">
-            <h1 class="text-2xl font-bold">匿名论坛 - P2P 客户端</h1>
+            <h1 class="text-2xl font-bold">匿名客户端</h1>
+            <div class="flex items-center gap-2 text-gray-600">
+                <span>昵称:</span>
+                <input type="text" id="nickname" class="p-1 border rounded" placeholder="设置昵称" />
+                <button id="saveNickname" class="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600">保存</button>
+            </div>
             <p class="text-gray-600">你的匿名地址: <span id="userAddress"></span></p>
             <p class="text-gray-600">连接节点数: <span id="peerCount">0</span></p>
         </header>
 
         <div class="mb-6">
             <textarea id="postContent" class="w-full p-2 border rounded" rows="4" placeholder="写点什么..."></textarea>
-            <button onclick="createPost()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">发布</button>
+            <button id="postButton" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">发布</button>
         </div>
 
         <div id="posts" class="space-y-4"></div>
     </div>
 
     <script type="module">
-        import { Client } from './app.js'
-
-        const client = new Client()
-        let userAddress = ''
-
-        async function init() {
-            await client.init()
-            userAddress = client.identity.address
-            document.getElementById('userAddress').textContent = userAddress
-
-            client.on('peer_connected', (count) => {
-                document.getElementById('peerCount').textContent = count
-            })
-
-            client.on('post_received', (post) => {
-                refreshPosts()
-            })
-
-            client.on('comment_received', (comment) => {
-                refreshComments(comment.postId)
-            })
-
-            await refreshPosts()
-        }
-
-        async function refreshPosts() {
-            const posts = await client.getPosts()
-            const postsContainer = document.getElementById('posts')
-            postsContainer.innerHTML = ''
-            
-            posts.forEach(post => {
-                const postElement = createPostElement(post)
-                postsContainer.appendChild(postElement)
-            })
-        }
-
-        function createPostElement(post) {
-            const div = document.createElement('div')
-            div.className = 'p-4 bg-white rounded shadow'
-            div.innerHTML = `
-                <p class="text-gray-600">作者: ${post.author}</p>
-                <p class="mt-2">${post.content}</p>
-                <p class="text-sm text-gray-500 mt-2">${new Date(post.timestamp).toLocaleString()}</p>
-                <div class="mt-4">
-                    <input type="text" placeholder="写评论..." class="p-2 border rounded w-full" />
-                    <button onclick="createComment('${post.id}', this)" class="mt-2 px-4 py-1 bg-gray-500 text-white rounded hover:bg-gray-600">评论</button>
-                </div>
-                <div class="comments mt-4"></div>
-            `
-            loadComments(post.id, div.querySelector('.comments'))
-            return div
-        }
-
-        async function loadComments(postId, container) {
-            const comments = await client.getComments(postId)
-            container.innerHTML = comments.map(comment => `
-                <div class="ml-4 mt-2 p-2 bg-gray-50 rounded">
-                    <p class="text-gray-600">作者: ${comment.author}</p>
-                    <p class="mt-1">${comment.content}</p>
-                    <p class="text-xs text-gray-500">${new Date(comment.timestamp).toLocaleString()}</p>
-                </div>
-            `).join('')
-        }
-
-        window.createPost = async function() {
-            const content = document.getElementById('postContent').value
-            if (!content) return
-
-            await client.createPost(content)
-            document.getElementById('postContent').value = ''
-            await refreshPosts()
-        }
-
-        window.createComment = async function(postId, button) {
-            const input = button.previousElementSibling
-            const content = input.value
-            if (!content) return
-
-            await client.createComment(postId, content)
-            input.value = ''
-            const commentsContainer = button.parentElement.nextElementSibling
-            await loadComments(postId, commentsContainer)
-        }
-
-        init()
+        import { UIController } from './ui.js'
+        new UIController()
     </script>
 </body>
 </html>

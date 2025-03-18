@@ -1,0 +1,15 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.anonymous.app
+productName: NOW U C ME
+mac:
+  category: public.app-category.social-networking
+  target:
+    - dmg
+    - zip
+files:
+  - filter:
+      - src/**/*
+      - package.json
+electronVersion: 35.0.2
