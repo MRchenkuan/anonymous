@@ -2,6 +2,7 @@
   "name": "now-u-c-me",
   "version": "1.0.0",
   "description": "匿名社交应用",
+  "author": "Your Name <your.email@example.com>",
   "main": "src/main.js",
   "type": "module",
   "scripts": {
@@ -13,23 +14,38 @@
     "productName": "NOW U C ME",
     "mac": {
       "category": "public.app-category.social-networking",
-      "target": ["dmg", "zip"]
+      "target": ["zip"]
     },
     "files": [
       "src/**/*",
-      "package.json"
-    ]
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "asar": true
   },
   "dependencies": {
-    "@libp2p/bootstrap": "^9.0.8",
-    "@libp2p/kad-dht": "^11.0.8",
+    "@libp2p/crypto": "^2.0.7",
+    "@libp2p/interface": "^0.1.2",
+    "@libp2p/keychain": "^3.0.7",
+    "@libp2p/logger": "^3.1.0",
     "@libp2p/mplex": "^9.0.8",
     "@libp2p/noise": "^12.0.1",
-    "@libp2p/pubsub-peer-discovery": "^11.0.1",
+    "@libp2p/peer-collections": "^4.0.6",
+    "@libp2p/peer-id": "^2.0.0",
+    "@libp2p/peer-id-factory": "^3.0.7",
+    "@libp2p/peer-store": "^9.0.0",
     "@libp2p/tcp": "^8.0.8",
-    "dotenv": "^16.3.1",
+    "@libp2p/websockets": "^7.0.8",
+    "@libp2p/webrtc": "^3.2.7",
+    "@libp2p/bootstrap": "^9.0.8",
+    "@libp2p/kad-dht": "^11.0.8",
+    "@libp2p/pubsub": "^8.0.6",
+    "@libp2p/pubsub-peer-discovery": "^11.0.1",
+    "@multiformats/mafmt": "^12.1.6",
+    "@multiformats/multiaddr": "^12.1.5",
+    "@chainsafe/libp2p-noise": "^11.0.0",
+    "datastore-core": "^9.2.3",
     "events": "^3.3.0",
-    "express": "^4.18.2",
     "level": "^8.0.1",
     "libp2p": "^0.46.21",
     "tweetnacl": "^1.0.3",

@@ -6,10 +6,11 @@ productName: NOW U C ME
 mac:
   category: public.app-category.social-networking
   target:
-    - dmg
     - zip
 files:
   - filter:
       - src/**/*
       - package.json
+      - node_modules/**/*
+asar: true
 electronVersion: 35.0.2

@@ -15,15 +15,48 @@ export class Database {
     this.comments = this.db.sublevel('comments', { valueEncoding: 'json' })
     this.nicknames = this.db.sublevel('nicknames', { valueEncoding: 'json' })
     
+    // 初始化身份验证
     this.identity = new Identity()
     
-    // 绑定所有方法
+    // 确保所有方法都绑定到实例上
     this.getNickname = this.getNickname.bind(this)
     this.saveNickname = this.saveNickname.bind(this)
     this.getAllNicknames = this.getAllNicknames.bind(this)
+    this.savePost = this.savePost.bind(this)
     this.getAllPosts = this.getAllPosts.bind(this)
     this.getPostComments = this.getPostComments.bind(this)
+    this.saveComment = this.saveComment.bind(this)  // 添加绑定
   }
+
+  async saveComment(postId, comment) {
+    const id = comment.id || `comment_${Date.now()}_${Math.random().toString(36).slice(2)}`
+    try {
+      const commentData = {
+        ...comment,
+        id,
+        postId,
+        version: await this.getDataVersion('comment', id),
+        timestamp: Date.now()
+      }
+
+      await this.comments.put(id, JSON.stringify(commentData))
+      
+      // 更新帖子的评论列表
+      const postStr = await this.posts.get(postId)
+      const post = JSON.parse(postStr)
+      if (!post.comments) {
+        post.comments = []
+      }
+      post.comments.push(id)
+      await this.posts.put(postId, JSON.stringify(post))
+      
+      return id
+    } catch (err) {
+      console.error('保存评论失败:', err)
+      throw err
+    }
+  }
+
 
   async getAllPosts() {
     const posts = []
@@ -136,6 +169,25 @@ export class Database {
     } catch (err) {
       console.error('签名验证失败:', err)
       return false
+    }
+  }
+
+  async savePost(post) {
+    const id = post.id || `post_${Date.now()}_${Math.random().toString(36).slice(2)}`
+    try {
+      const postData = {
+        ...post,
+        id,
+        comments: [],
+        version: await this.getDataVersion('post', id),
+        timestamp: Date.now()
+      }
+
+      await this.posts.put(id, JSON.stringify(postData))
+      return id
+    } catch (err) {
+      console.error('保存帖子失败:', err)
+      throw err
     }
   }
 }
