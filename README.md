@@ -44,6 +44,7 @@ src/
 ```bash
 git clone https://github.com/MRchenkuan/anonymous.git
 cd anonymous
+```
 
 
 ## 开发指南
