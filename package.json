@@ -1,0 +1,31 @@
+{
+  "name": "anonymous-forum",
+  "version": "1.0.0",
+  "description": "基于P2P的匿名论坛",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js",
+    "test": "node test/index.test.js"
+  },
+  "keywords": [
+    "p2p",
+    "forum",
+    "anonymous"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@libp2p/bootstrap": "^9.0.8",
+    "@libp2p/kad-dht": "^11.0.8",
+    "@libp2p/mplex": "^9.0.8",
+    "@libp2p/noise": "^12.0.1",
+    "@libp2p/pubsub-peer-discovery": "^11.0.1",
+    "@libp2p/tcp": "^8.0.8",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "level": "^8.0.0",
+    "libp2p": "^0.46.21",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1"
+  }
+}
