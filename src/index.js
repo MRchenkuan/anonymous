@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url'
 import { P2PNetwork } from './network/p2p.js'
 import { Database } from './storage/db.js'
 import { Identity } from './core/crypto.js'
+import { networkInterfaces } from 'os'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -95,8 +96,27 @@ app.get('/api/posts/:postId/comments', async (req, res) => {
   }
 })
 
-const PORT = process.env.PORT || 3000
-app.listen(PORT, async () => {
+// 获取本机IP地址
+function getLocalIP() {
+  const nets = networkInterfaces()
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === 'IPv4' && !net.internal) {
+        return net.address
+      }
+    }
+  }
+  return '0.0.0.0'
+}
+
+const PORT = process.env.PORT || 3000  // 修改端口号
+// const HOST = getLocalIP()  // 注释掉这行
+
+// 修改监听配置，使用 '0.0.0.0' 允许所有 IP 访问
+app.listen(PORT, '0.0.0.0', async () => {
   await p2p.init()
-  console.log(`服务器运行在端口 ${PORT}`)
+  const localIP = getLocalIP()
+  console.log(`服务器运行在:`)
+  console.log(`- 本地访问: http://localhost:${PORT}`)
+  console.log(`- 局域网访问: http://${localIP}:${PORT}`)
 })

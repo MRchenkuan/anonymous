@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node src/index.js",
+    "client": "node src/client.js",
     "test": "node test/index.test.js"
   },
   "keywords": [
@@ -27,5 +28,9 @@
     "libp2p": "^0.46.21",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1"
+  },
+  "devDependencies": {
+    "electron": "^35.0.2",
+    "electron-builder": "^25.1.8"
   }
 }

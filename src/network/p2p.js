@@ -14,7 +14,8 @@ export class P2PNetwork {
   async init() {
     this.node = await createLibp2p({
       addresses: {
-        listen: ['/ip4/127.0.0.1/tcp/0']
+        // 修改监听地址，允许所有网络接口
+        listen: ['/ip4/0.0.0.0/tcp/0']
       },
       transports: [tcp()],
       streamMuxers: [mplex()],
